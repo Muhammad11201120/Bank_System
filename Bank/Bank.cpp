@@ -5,6 +5,10 @@
 #include <fstream>
 
 using namespace std;
+enum enOptions
+{
+	showList = 1, addList = 2, deletList = 3, updateList = 4, findList = 5, Exit = 6
+};
 struct stAccountData {
 	string accountNumber;
 	string pinCode;
@@ -13,11 +17,17 @@ struct stAccountData {
 	string accountBalance;
 	bool deleteFlag = false;
 };
+bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName);
 stAccountData readRecord()
 {
 	stAccountData record;
 	cout << "Enter Account Number: ";
 	getline(cin >> ws, record.accountNumber);
+	while (checkIfClientAccountNumberIsAlreadyTaken(record.accountNumber,"clinet_Data_File.txt"))
+	{
+		cout << "\nClient With [ " << record.accountNumber << " ] is Already Exist, Enter Another Account Number." << endl;
+		getline(cin >> ws, record.accountNumber);
+	}
 	cout << "Enter Pin Code: ";
 	getline(cin >> ws, record.pinCode);
 	cout << "Enter Name: ";
@@ -59,18 +69,27 @@ void drowFooter()
 	cout << "\n__________________________________________________________________________________________________\n"
 		<< endl;
 }
+short mainMenue();
+void backToMainMenue() {
+	cout << "To Back To Main menue Press Any Key.." << endl;
+	system("pause");
+	mainMenue();
+}
+
 short mainMenue() {
+	system("cls"); // system("clear");
 	short choice = 0;
 	cout << "\n-------------------------------------------------------\n";
 	cout << "\t\t\t MAIN MENUE\n";
-	cout << "--------------------------------------------------------\n";
+	cout << "-------------------------------------------------------\n";
 	cout << "\t[1]=> Show Clients" << endl;
 	cout << "\t[2]=> Add New Client" << endl;
 	cout << "\t[3]=> Delete Client" << endl;
 	cout << "\t[4]=> Update Client" << endl;
 	cout << "\t[5]=> Find Client" << endl;
 	cout << "\t[6]=> Exit";
-	cout << "\n------------------------------------------------------\n";
+	cout << "\n-------------------------------------------------------\n";
+	cout << "Choose What You Want To Do From [1 - 6] ?: ";
 	cin >> choice;
 	return choice;
 }
@@ -208,6 +227,30 @@ bool findClientByAccountNumber(vector<stAccountData>& vClients, stAccountData& c
 	}
 	return false;
 }
+bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName){
+	vector <stAccountData> vClients;
+	fstream file;
+	file.open(flieName, ios::in); // open file in read mode
+
+	if (file.is_open())
+	{
+		string line; 
+		stAccountData client;
+
+		while (getline(file,line))
+		{
+			client = convertLineToRecord(line);
+			if (client.accountNumber == accountNumber)
+			{
+				file.close();
+				return true;
+			}
+			vClients.push_back(client);
+		}
+		file.close();
+	}
+	return false;
+}
 vector<stAccountData> saveClientsDataToFileAfterDelete(string fileName, vector<stAccountData>& vClients)
 {
 	fstream file;
@@ -288,14 +331,13 @@ void showClients() {
 
 void addClient() {
 	stAccountData stRecord;
-	string accountNumberToDelete;
 	char more = 'y';
 
 	// Insert Clients Data
 	do
 	{
 		system("cls");
-		cout << "Please Enter Client Data: \n";
+		cout << "Enter Client Data: \n";
 
 		readRecordToFile(stRecord);
 
@@ -306,6 +348,7 @@ void addClient() {
 
 
 void findClient() {
+	showClients();
 	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
 	stAccountData client;
 	string accountToFind = "";
@@ -382,34 +425,47 @@ void updateClient() {
 		cout << "No Account With That Number.." << endl;
 	}
 }
-void pages(short choice) {
+
+void pages(enOptions choice) {
 	switch (choice)
 	{
-	case 1:
+	case enOptions::showList:
+		system("cls");
 		showClients();
+		backToMainMenue();
 		//cout << "ShowPage";
 		break;
-	case 2:
+	case enOptions::addList:
+		system("cls");
 		addClient();
+		backToMainMenue();
 		//cout << "AddPage";
 		break;
-	case 3:
+	case enOptions::deletList:
+		system("cls");
 		deleteClient();
+		backToMainMenue();
 		//cout << "deleetePage";
 		break;
-	case 4:
+	case enOptions::updateList:
+		system("cls");
 		updateClient();
+		backToMainMenue();
 		//cout << "updatePage";
 		break;
-	case 5:
+	case enOptions::findList:
+		system("cls");
 		findClient();
+		backToMainMenue();
 		//cout << "findPage";
 		break;
 	default:
+		system("cls");
 		exit;
 	}
 }
 int main()
 {
-	pages(mainMenue());
+	pages((enOptions)mainMenue());
+	return 0;
 }
