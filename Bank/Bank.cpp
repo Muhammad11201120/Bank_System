@@ -7,7 +7,7 @@
 using namespace std;
 enum enOptions
 {
-	showList = 1, addList = 2, deletList = 3, updateList = 4, findList = 5, Exit = 6
+	showList = 1, addList = 2, deletList = 3, updateList = 4, findList = 5, transactions = 6, Exit = 7
 };
 struct stAccountData {
 	string accountNumber;
@@ -17,13 +17,17 @@ struct stAccountData {
 	string accountBalance;
 	bool deleteFlag = false;
 };
+enum enTransactions
+{
+	deposit = 1, withdrow = 2, totalBalance = 3, MainMenue = 4
+};
 bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName);
 stAccountData readRecord()
 {
 	stAccountData record;
 	cout << "Enter Account Number: ";
 	getline(cin >> ws, record.accountNumber);
-	while (checkIfClientAccountNumberIsAlreadyTaken(record.accountNumber,"clinet_Data_File.txt"))
+	while (checkIfClientAccountNumberIsAlreadyTaken(record.accountNumber, "clinet_Data_File.txt"))
 	{
 		cout << "\nClient With [ " << record.accountNumber << " ] is Already Exist, Enter Another Account Number." << endl;
 		getline(cin >> ws, record.accountNumber);
@@ -63,18 +67,23 @@ void drowHeader()
 	cout << "|" << left << setw(12) << "Account Balance";
 	cout << "\n__________________________________________________________________________________________________\n"
 		<< endl;
+}void drowBalancesScreenHeader()
+{
+	cout << "\n\t\t\t\t\t Client List" << endl;
+	cout << "\n__________________________________________________________________________________________________\n"
+		<< endl;
+	cout << "|" << left << setw(15) << "Account Number ";
+	cout << "|" << left << setw(40) << "Name ";
+	cout << "|" << left << setw(12) << "Account Balance";
+	cout << "\n__________________________________________________________________________________________________\n"
+		<< endl;
 }
 void drowFooter()
 {
 	cout << "\n__________________________________________________________________________________________________\n"
 		<< endl;
 }
-short mainMenue();
-void backToMainMenue() {
-	cout << "To Back To Main menue Press Any Key.." << endl;
-	system("pause");
-	mainMenue();
-}
+
 
 short mainMenue() {
 	system("cls"); // system("clear");
@@ -87,13 +96,18 @@ short mainMenue() {
 	cout << "\t[3]=> Delete Client" << endl;
 	cout << "\t[4]=> Update Client" << endl;
 	cout << "\t[5]=> Find Client" << endl;
-	cout << "\t[6]=> Exit";
+	cout << "\t[6]=> Transactions" << endl;
+	cout << "\t[7]=> Exit";
 	cout << "\n-------------------------------------------------------\n";
-	cout << "Choose What You Want To Do From [1 - 6] ?: ";
+	cout << "Choose What You Want To Do From [1 - 7] ?: ";
 	cin >> choice;
 	return choice;
 }
-
+void backToMainMenue() {
+	cout << "To Back To Main menue Press Any Key.." << endl;
+	system("pause");
+	mainMenue();
+}
 vector<string> seperateString(string& text, string seperator = " ")
 {
 	int position = 0;
@@ -198,12 +212,18 @@ vector<stAccountData> refreshFileAfterDeleteAccount(string fileName, stAccountDa
 	return vRecord;
 }
 
-void printClientData(stAccountData client)
+void printClientData(stAccountData& client)
 {
 	cout << "|" << left << setw(15) << client.accountNumber;
 	cout << "|" << left << setw(10) << client.pinCode;
 	cout << "|" << left << setw(40) << client.name;
 	cout << "|" << left << setw(12) << client.phone;
+	cout << "|" << left << setw(12) << client.accountBalance;
+	cout << endl;
+}void printBalancesData(stAccountData& client)
+{
+	cout << "|" << left << setw(15) << client.accountNumber;
+	cout << "|" << left << setw(40) << client.name;
 	cout << "|" << left << setw(12) << client.accountBalance;
 	cout << endl;
 }
@@ -213,6 +233,13 @@ void showClientsData(vector<stAccountData> vClients)
 	for (stAccountData& cl : vClients)
 	{
 		printClientData(cl);
+	}
+}void showBalancessData(vector<stAccountData> vClients)
+{
+
+	for (stAccountData& cl : vClients)
+	{
+		printBalancesData(cl);
 	}
 }
 bool findClientByAccountNumber(vector<stAccountData>& vClients, stAccountData& client, string accountNumberToFind)
@@ -227,17 +254,17 @@ bool findClientByAccountNumber(vector<stAccountData>& vClients, stAccountData& c
 	}
 	return false;
 }
-bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName){
+bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName) {
 	vector <stAccountData> vClients;
 	fstream file;
 	file.open(flieName, ios::in); // open file in read mode
 
 	if (file.is_open())
 	{
-		string line; 
+		string line;
 		stAccountData client;
 
-		while (getline(file,line))
+		while (getline(file, line))
 		{
 			client = convertLineToRecord(line);
 			if (client.accountNumber == accountNumber)
@@ -426,6 +453,112 @@ void updateClient() {
 	}
 }
 
+void Deposit() { 
+	showClients();
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	stAccountData client;
+	string accountToFind = "";
+	double depositAmount = 0;
+	cout << "Enter Account Number? ";
+	getline(cin >> ws, accountToFind);
+	if (findClientByAccountNumber(vClients, client, accountToFind))
+	{
+
+		drowHeader();
+		printClientData(client);
+		drowFooter();
+		cout << "How Much Do You Want To Deposit? ";
+		cin >> depositAmount;
+		for (stAccountData& cl : vClients)
+		{
+			if (cl.accountNumber == accountToFind)
+			{
+				cl.accountBalance = to_string(stod( cl.accountBalance) + depositAmount);
+				saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
+				break;
+			}
+		}
+
+	}
+	else
+	{
+		cout << "No Account With That Number.." << endl;
+	}
+}
+void WithDrow() {
+	showClients();
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	stAccountData client;
+	string accountToFind = "";
+	double depositAmount = 0;
+	cout << "Enter Account Number? ";
+	getline(cin >> ws, accountToFind);
+	if (findClientByAccountNumber(vClients, client, accountToFind))
+	{
+
+		drowHeader();
+		printClientData(client);
+		drowFooter();
+		cout << "How Much Do You Want To Withdrow? ";
+		cin >> depositAmount;
+		for (stAccountData& cl : vClients)
+		{
+			if (cl.accountNumber == accountToFind)
+			{
+				cl.accountBalance = to_string(stod(cl.accountBalance) - depositAmount);
+				saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
+				break;
+			}
+		}
+
+	}
+	else
+	{
+		cout << "No Account With That Number.." << endl;
+	}
+}
+void TotalBalance() {
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	drowBalancesScreenHeader();
+	showBalancessData(vClients);
+	drowFooter();
+}
+short showTransactionsOptions() {
+	system("cls"); // system("clear");
+	short choice = 0;
+	cout << "\n-------------------------------------------------------\n";
+	cout << "\t\t Transactions Screen\n";
+	cout << "-------------------------------------------------------\n";
+	cout << "\t[1]=> Deposit" << endl;
+	cout << "\t[2]=> Withdrow" << endl;
+	cout << "\t[3]=> TotalBalance" << endl;
+	cout << "\t[4]=> Main Menue";
+	cout << "\n-------------------------------------------------------\n";
+	cout << "Choose What You Want To Do From [1 - 4] ?: ";
+	cin >> choice;
+	return choice;
+}
+void performTransaction(enTransactions options) {
+	switch (options)
+	{
+	case enTransactions::deposit:
+		Deposit();
+		backToMainMenue();
+		break;
+	case enTransactions::withdrow:
+		WithDrow();
+		backToMainMenue();
+		break;
+	case enTransactions::totalBalance:
+		TotalBalance();
+		backToMainMenue();
+		break;
+	case enTransactions::MainMenue:
+		mainMenue();
+		backToMainMenue();
+		break;
+	}
+}
 void pages(enOptions choice) {
 	switch (choice)
 	{
@@ -459,6 +592,9 @@ void pages(enOptions choice) {
 		backToMainMenue();
 		//cout << "findPage";
 		break;
+	case enOptions::transactions:
+		system("cls");
+		performTransaction((enTransactions)showTransactionsOptions());
 	default:
 		system("cls");
 		exit;
