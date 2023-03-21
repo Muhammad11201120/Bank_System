@@ -486,7 +486,7 @@ void Deposit() {
 	getline(cin >> ws, accountToFind);
 	while (!findClientByAccountNumber(vClients, client, accountToFind))
 	{
-		cout << "No Account With Number "<<accountToFind<< endl;
+		cout << "No Account With Number " << accountToFind << endl;
 
 		cout << "Enter Account Number? ";
 		getline(cin >> ws, accountToFind);
@@ -506,7 +506,6 @@ void Deposit() {
 			break;
 		}
 	}
-	showTransactionsOptions();
 }
 void WithDrow() {
 	showClients();
@@ -526,25 +525,31 @@ void WithDrow() {
 	drowHeader();
 	printClientData(client);
 	drowFooter();
-	cout << "How Much Do You Want To Withdrow? ";
+	cout << "How Much Do You Want To Withdrow? (make Sure To Enter A correct Amount..) ";
 	cin >> depositAmount;
+
 	for (stAccountData& cl : vClients)
 	{
 		if (cl.accountNumber == accountToFind)
 		{
+			while (depositAmount > stod(cl.accountBalance))
+			{
+				cout << "The Amount That you have entered is more than the account balance.." << endl;
+				cout << "How Much Do You Want To Withdrow? (make Sure To Enter A correct Amount..) ";
+				cin >> depositAmount;
+			}
 			cl.accountBalance = to_string(stod(cl.accountBalance) - depositAmount);
 			saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
 			break;
 		}
 	}
-	showTransactionsOptions();
+	
 }
 void TotalBalance() {
 	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
 	drowBalancesScreenHeader();
 	showBalancessData(vClients);
 	drowFooter();
-	showTransactionsOptions();
 }
 
 void performTransaction(enTransactions options) {
@@ -604,7 +609,7 @@ void pages(enOptions choice) {
 	case enOptions::transactions:
 		system("cls");
 		performTransaction((enTransactions)showTransactionsOptions());
-	default:
+	case enOptions::Exit:
 		system("cls");
 		exit;
 	}
