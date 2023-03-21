@@ -1,5 +1,5 @@
 ﻿  Bank.cpp
-D:\Programing\c++\Bank\Bank\Bank.cpp(116,33): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Programing\c++\Bank\Bank\Bank.cpp(126,34): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Programing\c++\Bank\Bank\Bank.cpp(600,3): warning C4551: function call missing argument list
+D:\Programing\c++\Bank\Bank\Bank.cpp(124,33): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Programing\c++\Bank\Bank\Bank.cpp(134,34): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Programing\c++\Bank\Bank\Bank.cpp(609,3): warning C4551: function call missing argument list
   Bank.vcxproj -> D:\Programing\c++\Bank\x64\Debug\Bank.exe

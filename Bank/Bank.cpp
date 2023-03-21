@@ -22,6 +22,7 @@ enum enTransactions
 	deposit = 1, withdrow = 2, totalBalance = 3, MainMenue = 4
 };
 bool checkIfClientAccountNumberIsAlreadyTaken(string accountNumber, string flieName);
+void pages(enOptions choice);
 stAccountData readRecord()
 {
 	stAccountData record;
@@ -84,7 +85,8 @@ void drowFooter()
 		<< endl;
 }
 
-
+void performTransaction(enTransactions options);
+short showTransactionsOptions();
 short mainMenue() {
 	system("cls"); // system("clear");
 	short choice = 0;
@@ -102,12 +104,18 @@ short mainMenue() {
 	cout << "Choose What You Want To Do From [1 - 7] ?: ";
 	cin >> choice;
 	return choice;
+
 }
 void backToMainMenue() {
 	cout << "To Back To Main menue Press Any Key.." << endl;
 	system("pause");
-	mainMenue();
+	pages((enOptions)mainMenue());
+}void backToTransactionsMenue() {
+	cout << "To Back To Transactions menue Press Any Key.." << endl;
+	system("pause");
+	performTransaction((enTransactions)showTransactionsOptions());
 }
+
 vector<string> seperateString(string& text, string seperator = " ")
 {
 	int position = 0;
@@ -406,6 +414,7 @@ void deleteClient() {
 	getline(cin >> ws, accountNumberToDelete);
 	if (findClientByAccountNumber(vClients, client, accountNumberToDelete))
 	{
+		system("cls");
 		drowHeader();
 		printClientData(client);
 		drowFooter();
@@ -434,7 +443,7 @@ void updateClient() {
 	getline(cin >> ws, accountToFind);
 	if (findClientByAccountNumber(vClients, client, accountToFind))
 	{
-
+		system("cls");
 		drowHeader();
 		printClientData(client);
 		drowFooter();
@@ -452,77 +461,6 @@ void updateClient() {
 		cout << "No Account With That Number.." << endl;
 	}
 }
-
-void Deposit() { 
-	showClients();
-	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
-	stAccountData client;
-	string accountToFind = "";
-	double depositAmount = 0;
-	cout << "Enter Account Number? ";
-	getline(cin >> ws, accountToFind);
-	if (findClientByAccountNumber(vClients, client, accountToFind))
-	{
-
-		drowHeader();
-		printClientData(client);
-		drowFooter();
-		cout << "How Much Do You Want To Deposit? ";
-		cin >> depositAmount;
-		for (stAccountData& cl : vClients)
-		{
-			if (cl.accountNumber == accountToFind)
-			{
-				cl.accountBalance = to_string(stod( cl.accountBalance) + depositAmount);
-				saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
-				break;
-			}
-		}
-
-	}
-	else
-	{
-		cout << "No Account With That Number.." << endl;
-	}
-}
-void WithDrow() {
-	showClients();
-	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
-	stAccountData client;
-	string accountToFind = "";
-	double depositAmount = 0;
-	cout << "Enter Account Number? ";
-	getline(cin >> ws, accountToFind);
-	if (findClientByAccountNumber(vClients, client, accountToFind))
-	{
-
-		drowHeader();
-		printClientData(client);
-		drowFooter();
-		cout << "How Much Do You Want To Withdrow? ";
-		cin >> depositAmount;
-		for (stAccountData& cl : vClients)
-		{
-			if (cl.accountNumber == accountToFind)
-			{
-				cl.accountBalance = to_string(stod(cl.accountBalance) - depositAmount);
-				saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
-				break;
-			}
-		}
-
-	}
-	else
-	{
-		cout << "No Account With That Number.." << endl;
-	}
-}
-void TotalBalance() {
-	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
-	drowBalancesScreenHeader();
-	showBalancessData(vClients);
-	drowFooter();
-}
 short showTransactionsOptions() {
 	system("cls"); // system("clear");
 	short choice = 0;
@@ -538,20 +476,91 @@ short showTransactionsOptions() {
 	cin >> choice;
 	return choice;
 }
+void Deposit() {
+	showClients();
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	stAccountData client;
+	string accountToFind = "";
+	double depositAmount = 0;
+	cout << "Enter Account Number? ";
+	getline(cin >> ws, accountToFind);
+	while (!findClientByAccountNumber(vClients, client, accountToFind))
+	{
+		cout << "No Account With Number "<<accountToFind<< endl;
+
+		cout << "Enter Account Number? ";
+		getline(cin >> ws, accountToFind);
+	}
+	system("cls");
+	drowHeader();
+	printClientData(client);
+	drowFooter();
+	cout << "How Much Do You Want To Deposit? ";
+	cin >> depositAmount;
+	for (stAccountData& cl : vClients)
+	{
+		if (cl.accountNumber == accountToFind)
+		{
+			cl.accountBalance = to_string(stod(cl.accountBalance) + depositAmount);
+			saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
+			break;
+		}
+	}
+	showTransactionsOptions();
+}
+void WithDrow() {
+	showClients();
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	stAccountData client;
+	string accountToFind = "";
+	double depositAmount = 0;
+	cout << "Enter Account Number? ";
+	getline(cin >> ws, accountToFind);
+	while (!findClientByAccountNumber(vClients, client, accountToFind))
+	{
+		cout << "No Account With Number " << accountToFind << endl;
+		cout << "Enter Account Number? ";
+		getline(cin >> ws, accountToFind);
+	}
+	system("cls");
+	drowHeader();
+	printClientData(client);
+	drowFooter();
+	cout << "How Much Do You Want To Withdrow? ";
+	cin >> depositAmount;
+	for (stAccountData& cl : vClients)
+	{
+		if (cl.accountNumber == accountToFind)
+		{
+			cl.accountBalance = to_string(stod(cl.accountBalance) - depositAmount);
+			saveClientsDataToFileAfterUpdate("clinet_Data_File.txt", vClients);
+			break;
+		}
+	}
+	showTransactionsOptions();
+}
+void TotalBalance() {
+	vector<stAccountData> vClients = ReadFileToVector("clinet_Data_File.txt");
+	drowBalancesScreenHeader();
+	showBalancessData(vClients);
+	drowFooter();
+	showTransactionsOptions();
+}
+
 void performTransaction(enTransactions options) {
 	switch (options)
 	{
 	case enTransactions::deposit:
 		Deposit();
-		backToMainMenue();
+		backToTransactionsMenue();
 		break;
 	case enTransactions::withdrow:
 		WithDrow();
-		backToMainMenue();
+		backToTransactionsMenue();
 		break;
 	case enTransactions::totalBalance:
 		TotalBalance();
-		backToMainMenue();
+		backToTransactionsMenue();
 		break;
 	case enTransactions::MainMenue:
 		mainMenue();
